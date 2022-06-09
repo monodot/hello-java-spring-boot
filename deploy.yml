@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: hello-java-spring-boot
+      app.kubernetes.io/component: hello-java-spring-boot
+      app.kubernetes.io/instance: hello-java-spring-boot
+    name: hello-java-spring-boot
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deployment: hello-java-spring-boot
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    labels:
+      app: hello-java-spring-boot
+      app.kubernetes.io/component: hello-java-spring-boot
+      app.kubernetes.io/instance: hello-java-spring-boot
+    name: hello-java-spring-boot
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: hello-java-spring-boot
+    template:
+      metadata:
+        labels:
+          app: hello-java-spring-boot
+        name: hello-java-spring-boot
+      spec:
+        containers:
+        - image: monodot/hello-java-spring-boot:latest
+          imagePullPolicy: IfNotPresent
+          name: hello-java-spring-boot
+          env:
+            - name: FAVOURITE_CHEESE
+              valueFrom:
+                configMapKeyRef: my-configmap
+                key: thefavourite.cheese
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+        restartPolicy: Always
